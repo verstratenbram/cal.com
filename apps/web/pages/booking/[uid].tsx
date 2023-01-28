@@ -283,7 +283,7 @@ export default function Success(props: SuccessProps) {
 
   function eventLink(): string {
     const optional: { location?: string } = {};
-    if (location) {
+    if (locationVideoCallUrl) {
       optional["location"] = locationVideoCallUrl;
     }
 
