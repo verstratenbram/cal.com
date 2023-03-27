@@ -1,0 +1,15 @@
+/* back-end */
+.flex .relative aside header{
+	display: none !important;
+}
+
+/* booking page */
+main.flex > div > div:last-child{
+	display: none !important;
+}
+
+/* login page */
+/* hide signup link */
+a[href='https://cal.mijnafspraken.online/signup']{ 
+	display: none !important;
+}
