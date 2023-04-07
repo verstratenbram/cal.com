@@ -4,9 +4,9 @@
 }
 
 /* booking page */
-main.flex > div > div:last-child{
+/*main.flex > div > div:last-child{
 	display: none !important;
-}
+}*/
 
 /* login page */
 /* hide signup link */
