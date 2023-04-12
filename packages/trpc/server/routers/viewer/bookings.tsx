@@ -268,6 +268,14 @@ export const bookingsRouter = router({
           },
           status: true,
           paid: true,
+          payment: {
+            select: {
+              paymentOption: true,
+              amount: true,
+              currency: true,
+              success: true,
+            },
+          },
           user: {
             select: {
               id: true,
@@ -550,10 +558,10 @@ export const bookingsRouter = router({
         const bookingRefsFiltered: BookingReference[] = bookingToReschedule.references.filter(
           (ref) => !!credentialsMap.get(ref.type)
         );
-        bookingRefsFiltered.forEach((bookingRef) => {
+        bookingRefsFiltered.forEach(async (bookingRef) => {
           if (bookingRef.uid) {
             if (bookingRef.type.endsWith("_calendar")) {
-              const calendar = getCalendar(credentialsMap.get(bookingRef.type));
+              const calendar = await getCalendar(credentialsMap.get(bookingRef.type));
 
               return calendar?.deleteEvent(
                 bookingRef.uid,
@@ -964,7 +972,7 @@ export const bookingsRouter = router({
             }
 
             // Posible to refactor TODO:
-            const paymentApp = appStore[paymentAppCredential?.app?.dirName as keyof typeof appStore];
+            const paymentApp = await appStore[paymentAppCredential?.app?.dirName as keyof typeof appStore];
             if (!(paymentApp && "lib" in paymentApp && "PaymentService" in paymentApp.lib)) {
               console.warn(`payment App service of type ${paymentApp} is not implemented`);
               return null;
