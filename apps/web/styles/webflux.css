@@ -1,4 +1,4 @@
-/* back-end */
+/* cal ap, general */
 .flex .relative aside header{
 	display: none !important;
 }
@@ -12,4 +12,16 @@
 /* hide signup link */
 a[href='https://cal.mijnafspraken.online/signup']{ 
 	display: none !important;
+}
+
+
+
+/* cal app, left nav */
+[aria-hidden='Teams'], [aria-hidden='Werkstromen'], [data-testid='vertical-tab-Facturering'], [data-testid='vertical-tab-API-sleutels'], [data-testid='vertical-tab-Eenmalige'] {
+  display: none;
+}
+
+/* cal app, event detail */
+[data-testid='vertical-tab-workflows']{
+  display: none;
 }
