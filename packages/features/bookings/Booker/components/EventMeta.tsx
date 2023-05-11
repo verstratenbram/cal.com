@@ -9,7 +9,7 @@ import { Calendar, Globe } from "@calcom/ui/components/icon";
 
 import { fadeInUp } from "../config";
 import { useBookerStore } from "../store";
-import { formatEventFromToTime } from "../utils/dates";
+import { FromToTime } from "../utils/dates";
 import { useEvent } from "../utils/event";
 
 const TimezoneSelect = dynamic(() => import("@calcom/ui").then((mod) => mod.TimezoneSelect), {
@@ -36,42 +36,42 @@ export const EventMeta = () => {
         <m.div {...fadeInUp} layout transition={{ ...fadeInUp.transition, delay: 0.3 }}>
           <EventMembers schedulingType={event.schedulingType} users={event.users} profile={event.profile} />
           <EventTitle className="mt-2 mb-8">{event?.title}</EventTitle>
-          <div className="space-y-4">
+          <div className="space-y-4 font-medium">
             {rescheduleBooking && (
               <EventMetaBlock icon={Calendar}>
                 {t("former_time")}
                 <br />
                 <span className="line-through" data-testid="former_time_p">
-                  {formatEventFromToTime(
-                    rescheduleBooking.startTime.toString(),
-                    null,
-                    timeFormat,
-                    timezone,
-                    i18n.language
-                  )}
+                  <FromToTime
+                    date={rescheduleBooking.startTime.toString()}
+                    duration={null}
+                    timeFormat={timeFormat}
+                    timeZone={timezone}
+                    language={i18n.language}
+                  />
                 </span>
               </EventMetaBlock>
             )}
             {selectedTimeslot && (
               <EventMetaBlock icon={Calendar}>
-                {formatEventFromToTime(
-                  selectedTimeslot,
-                  selectedDuration,
-                  timeFormat,
-                  timezone,
-                  i18n.language
-                )}
+                <FromToTime
+                  date={selectedTimeslot}
+                  duration={selectedDuration || event.length}
+                  timeFormat={timeFormat}
+                  timeZone={timezone}
+                  language={i18n.language}
+                />
               </EventMetaBlock>
             )}
             <EventDetails event={event} />
             <EventMetaBlock
-              className="cursor-pointer [&_.current-timezone:before]:focus-within:opacity-100 [&_.current-timezone:before]:hover:opacity-100 [&_>svg]:mt-[4px]"
+              className="cursor-pointer [&_.current-timezone:before]:focus-within:opacity-100 [&_.current-timezone:before]:hover:opacity-100"
               contentClassName="relative"
               icon={Globe}>
               {bookerState === "booking" ? (
                 <>{timezone}</>
               ) : (
-                <span className="current-timezone before:bg-subtle flex items-center justify-center before:absolute before:inset-0 before:left-[-30px] before:top-[-3px] before:bottom-[-3px] before:w-[calc(100%_+_35px)] before:rounded-md before:py-3 before:opacity-0 before:transition-opacity">
+                <span className="current-timezone before:bg-subtle -mt-[2px] flex h-6 items-center justify-center before:absolute before:inset-0 before:left-[-30px] before:top-[-3px] before:bottom-[-3px] before:w-[calc(100%_+_35px)] before:rounded-md before:py-3 before:opacity-0 before:transition-opacity">
                   <TimezoneSelect
                     menuPosition="fixed"
                     classNames={{
