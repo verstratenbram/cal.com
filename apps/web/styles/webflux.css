@@ -7,7 +7,7 @@
 
 /* general */
 /* hide unnecessary links */
-a[href='https://cal.com/slack'], a[href='https://cal.com/roadmap'], a[href='https://cal.com/download'], a[href='https://cal.mijnafspraken.online/?utm_source=embed&amp;utm_medium=powered-by-button']{
+a[href='https://cal.com/slack'], a[href='https://cal.com/roadmap'], a[href='https://cal.com/download'], a[href='https://cal.mijnafspraken.online/?utm_source=embed&utm_medium=powered-by-button']{
   display: none !important;
 }
 
