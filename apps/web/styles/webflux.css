@@ -4,11 +4,14 @@
 }
 */
 
+
 /* general */
 /* hide unnecessary links */
-a[href='https://cal.com/slack'], a[href='https://cal.com/roadmap'], a[href='https://cal.com/download']{
+a[href='https://cal.com/slack'], a[href='https://cal.com/roadmap'], a[href='https://cal.com/download'], a[href='https://cal.mijnafspraken.online/?utm_source=embed&amp;utm_medium=powered-by-button']{
   display: none !important;
 }
+
+
 
 /* booking page */
 /*main.flex > div > div:last-child{
@@ -20,6 +23,8 @@ a[href='https://cal.com/slack'], a[href='https://cal.com/roadmap'], a[href='http
 a[href='https://cal.mijnafspraken.online/signup']{
   display: none !important;
 }
+
+
 
 /* cal app, left nav */
 [aria-hidden='Teams'], [aria-hidden='Werkstromen'], [data-testid='vertical-tab-Facturering'], [data-testid='vertical-tab-API-sleutels'], [data-testid='vertical-tab-Eenmalige'] {
