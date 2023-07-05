@@ -4,7 +4,7 @@ import { orderBy } from "lodash";
 import { hasFilter } from "@calcom/features/filters/lib/hasFilter";
 import { CAL_URL } from "@calcom/lib/constants";
 import { markdownToSafeHTML } from "@calcom/lib/markdownToSafeHTML";
-import { baseEventTypeSelect, baseUserSelect } from "@calcom/prisma";
+import { baseEventTypeSelect } from "@calcom/prisma";
 import { MembershipRole, SchedulingType } from "@calcom/prisma/enums";
 import { teamMetadataSchema } from "@calcom/prisma/zod-utils";
 import { EventTypeMetaDataSchema } from "@calcom/prisma/zod-utils";
@@ -21,6 +21,12 @@ type GetByViewerOptions = {
   };
   input: TEventTypeInputSchema;
 };
+
+const userSelect = Prisma.validator<Prisma.UserSelect>()({
+  id: true,
+  username: true,
+  name: true,
+});
 
 const eventTypeSelect = Prisma.validator<Prisma.EventTypeSelect>()({
   // Position is required by lodash to sort on it. Don't remove it, TS won't complain but it would silently break reordering
@@ -41,24 +47,32 @@ const eventTypeSelect = Prisma.validator<Prisma.EventTypeSelect>()({
   },
   metadata: true,
   users: {
-    select: baseUserSelect,
+    select: userSelect,
   },
   children: {
     include: {
-      users: true,
+      users: {
+        select: userSelect,
+      },
     },
   },
   parentId: true,
   hosts: {
     select: {
       user: {
-        select: baseUserSelect,
+        select: userSelect,
       },
     },
   },
   seatsPerTimeSlot: true,
   ...baseEventTypeSelect,
 });
+
+export const compareMembership = (mship1: MembershipRole, mship2: MembershipRole) => {
+  const mshipToNumber = (mship: MembershipRole) =>
+    Object.keys(MembershipRole).findIndex((mmship) => mmship === mship);
+  return mshipToNumber(mship1) > mshipToNumber(mship2);
+};
 
 export const getByViewerHandler = async ({ ctx, input }: GetByViewerOptions) => {
   const { prisma } = ctx;
@@ -206,12 +220,6 @@ export const getByViewerHandler = async ({ ctx, input }: GetByViewerOptions) => 
     membershipRole: membership.role,
   }));
 
-  const compareMembership = (mship1: MembershipRole, mship2: MembershipRole) => {
-    const mshipToNumber = (mship: MembershipRole) =>
-      Object.keys(MembershipRole).findIndex((mmship) => mmship === mship);
-    return mshipToNumber(mship1) > mshipToNumber(mship2);
-  };
-
   const filterTeamsEventTypesBasedOnInput = (eventType: ReturnType<typeof mapEventType>) => {
     if (!input?.filters || !hasFilter(input?.filters)) {
       return true;
@@ -277,7 +285,7 @@ export const getByViewerHandler = async ({ ctx, input }: GetByViewerOptions) => 
       ...group.metadata,
       teamId: group.teamId,
       membershipRole: group.membershipRole,
-      image: `${CAL_URL}/${group.profile.slug}/avatar.png`,
+      image: `${CAL_URL}${group.teamId ? "/team" : ""}/${group.profile.slug}/avatar.png`,
     })),
   };
 };
