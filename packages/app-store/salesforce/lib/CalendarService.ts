@@ -17,6 +17,7 @@ import type {
 import type { CredentialPayload } from "@calcom/types/Credential";
 
 import getAppKeysFromSlug from "../../_utils/getAppKeysFromSlug";
+import type { ParseRefreshTokenResponse } from "../../_utils/oauth/parseRefreshTokenResponse";
 import parseRefreshTokenResponse from "../../_utils/oauth/parseRefreshTokenResponse";
 
 type ExtendedTokenResponse = TokenResponse & {
@@ -72,31 +73,39 @@ export default class SalesforceCalendarService implements Calendar {
 
     const credentialKey = credential.key as unknown as ExtendedTokenResponse;
 
-    const response = await fetch("https://login.salesforce.com/services/oauth2/token", {
-      method: "POST",
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: consumer_key,
-        client_secret: consumer_secret,
-        refresh_token: credentialKey.refresh_token,
-        format: "json",
-      }),
-    });
+    try {
+      /* XXX: This code results in 'Bad Request', which indicates something is wrong with our salesforce integration.
+              Needs further investigation ASAP */
+      const response = await fetch("https://login.salesforce.com/services/oauth2/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          client_id: consumer_key,
+          client_secret: consumer_secret,
+          refresh_token: credentialKey.refresh_token,
+        }),
+      });
 
-    if (response.statusText !== "OK") throw new HttpError({ statusCode: 400, message: response.statusText });
+      if (!response.ok) {
+        const message = `${response.statusText}: ${JSON.stringify(await response.json())}`;
+        throw new Error(message);
+      }
 
-    const accessTokenJson = await response.json();
+      const accessTokenJson = await response.json();
 
-    const accessTokenParsed = parseRefreshTokenResponse(accessTokenJson, salesforceTokenSchema);
+      const accessTokenParsed: ParseRefreshTokenResponse<typeof salesforceTokenSchema> =
+        parseRefreshTokenResponse(accessTokenJson, salesforceTokenSchema);
 
-    if (!accessTokenParsed.success) {
-      return Promise.reject(new Error("Invalid refreshed tokens were returned"));
+      await prisma.credential.update({
+        where: { id: credential.id },
+        data: { key: { ...accessTokenParsed, refresh_token: credentialKey.refresh_token } },
+      });
+    } catch (err: unknown) {
+      console.error(err); // log but proceed
     }
-
-    await prisma.credential.update({
-      where: { id: credential.id },
-      data: { key: { ...accessTokenParsed.data, refresh_token: credentialKey.refresh_token } },
-    });
 
     return new jsforce.Connection({
       clientId: consumer_key,
