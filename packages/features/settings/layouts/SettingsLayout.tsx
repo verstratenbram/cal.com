@@ -117,6 +117,7 @@ const tabs: VerticalTabItemProps[] = [
       { name: "apps", href: "/settings/admin/apps/calendar" },
       { name: "users", href: "/settings/admin/users" },
       { name: "organizations", href: "/settings/admin/organizations" },
+      { name: "oAuth", href: "/settings/admin/oAuth" },
     ],
   },
 ];
@@ -374,11 +375,13 @@ const SettingsSidebarContainer = ({
                                       <ChevronRight className="h-4 w-4" />
                                     )}
                                   </div>
-                                  <img
-                                    src={getPlaceholderAvatar(team.logo, team?.name as string)}
-                                    className="h-[16px] w-[16px] self-start rounded-full stroke-[2px] ltr:mr-2 rtl:ml-2 md:mt-0"
-                                    alt={team.name || "Team logo"}
-                                  />
+                                  {!team.parentId && (
+                                    <img
+                                      src={getPlaceholderAvatar(team.logo, team?.name as string)}
+                                      className="h-[16px] w-[16px] self-start rounded-full stroke-[2px] ltr:mr-2 rtl:ml-2 md:mt-0"
+                                      alt={team.name || "Team logo"}
+                                    />
+                                  )}
                                   <p className="w-1/2 truncate">{team.name}</p>
                                   {!team.accepted && (
                                     <Badge className="ms-3" variant="orange">
@@ -516,11 +519,13 @@ const SettingsSidebarContainer = ({
                                       <ChevronRight className="h-4 w-4" />
                                     )}
                                   </div>
-                                  <img
-                                    src={getPlaceholderAvatar(otherTeam.logo, otherTeam?.name as string)}
-                                    className="h-[16px] w-[16px] self-start rounded-full stroke-[2px] ltr:mr-2 rtl:ml-2 md:mt-0"
-                                    alt={otherTeam.name || "Team logo"}
-                                  />
+                                  {!otherTeam.parentId && (
+                                    <img
+                                      src={getPlaceholderAvatar(otherTeam.logo, otherTeam?.name as string)}
+                                      className="h-[16px] w-[16px] self-start rounded-full stroke-[2px] ltr:mr-2 rtl:ml-2 md:mt-0"
+                                      alt={otherTeam.name || "Team logo"}
+                                    />
+                                  )}
                                   <p className="w-1/2 truncate">{otherTeam.name}</p>
                                 </div>
                               </CollapsibleTrigger>
