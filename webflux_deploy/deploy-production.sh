@@ -4,11 +4,11 @@ echo "***********************************************"
 echo "*** Fetching latest version from Github... ***"
 echo "***********************************************"
 
-git clone -b webflux --single-branch https://github.com/verstratenbram/cal.com.git staging
+git clone -b webflux --single-branch https://github.com/verstratenbram/cal.com.git production
 
-cd staging || exit
+cd production || exit
 
-cp ../.env-staging .env
+cp ../.env-production .env
 
 echo "*************************"
 echo "*** Preparing yarn... ***"
@@ -32,20 +32,20 @@ echo "*** Creating archive ***"
 echo "************************"
 
 cd ..
-gtar czf staging.tar.gz staging
+gtar czf production.tar.gz production
 
 echo "*************************"
 echo "*** Uploading archive ***"
 echo "*************************"
 
-scp staging.tar.gz ur10293@staging.cal.green.srv.onl:~
+scp production.tar.gz ur10259@cal.mijnafspraken.online:~
 
 echo "*******************"
 echo "*** Cleaning up ***"
 echo "*******************"
 
-rm -rf staging/
-rm staging.tar.gz
+rm -rf production/
+rm production.tar.gz
 
 echo "************"
 echo "*** Done ***"

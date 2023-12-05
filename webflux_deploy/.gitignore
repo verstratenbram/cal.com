@@ -1,3 +1,7 @@
 staging/
 staging.tar.gz
 .env-staging
+
+production/
+production.tar.gz
+.env-production
