@@ -8,7 +8,10 @@ git clone -b webflux --single-branch https://github.com/verstratenbram/cal.com.g
 
 cd staging || exit
 
-cp ../.env-staging .env
+cp ../.env-staging .env || {
+  echo "Error: Failed to copy env";
+  exit 1;
+}
 
 echo "*************************"
 echo "*** Preparing yarn... ***"
