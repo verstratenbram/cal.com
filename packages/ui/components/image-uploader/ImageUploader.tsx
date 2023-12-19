@@ -68,6 +68,8 @@ type ImageUploaderProps = {
   imageSrc?: string;
   target: string;
   triggerButtonColor?: ButtonColor;
+  uploadInstruction?: string;
+  disabled?: boolean;
 };
 
 interface FileEvent<T = Element> extends FormEvent<T> {
@@ -122,6 +124,8 @@ export default function ImageUploader({
   handleAvatarChange,
   triggerButtonColor,
   imageSrc,
+  uploadInstruction,
+  disabled = false,
 }: ImageUploaderProps) {
   const { t } = useLocale();
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -163,11 +167,19 @@ export default function ImageUploader({
 
   return (
     <Dialog
-      onOpenChange={
-        (opened) => !opened && setFile(null) // unset file on close
-      }>
+      onOpenChange={(opened) => {
+        // unset file on close
+        if (!opened) {
+          setFile(null);
+        }
+      }}>
       <DialogTrigger asChild>
-        <Button color={triggerButtonColor ?? "secondary"} type="button" className="py-1 text-sm">
+        <Button
+          color={triggerButtonColor ?? "secondary"}
+          type="button"
+          disabled={disabled}
+          data-testid="open-upload-avatar-dialog"
+          className="cursor-pointer py-1 text-sm">
           {buttonMsg}
         </Button>
       </DialogTrigger>
@@ -187,7 +199,9 @@ export default function ImageUploader({
               </div>
             )}
             {result && <CropContainer imageSrc={result as string} onCropComplete={setCroppedAreaPixels} />}
-            <label className="bg-subtle hover:bg-muted hover:text-emphasis border-subtle text-default mt-8 rounded-sm border px-3 py-1 text-xs font-medium leading-4 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-1">
+            <label
+              data-testid="open-upload-image-filechooser"
+              className="bg-subtle hover:bg-muted hover:text-emphasis border-subtle text-default mt-8 cursor-pointer rounded-sm border px-3 py-1 text-xs font-medium leading-4 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-1">
               <input
                 onInput={onInputFile}
                 type="file"
@@ -198,13 +212,19 @@ export default function ImageUploader({
               />
               {t("choose_a_file")}
             </label>
+            {uploadInstruction && (
+              <p className="text-muted mt-4 text-center text-sm">({uploadInstruction})</p>
+            )}
           </div>
         </div>
         <DialogFooter className="relative">
-          <DialogClose color="primary" onClick={() => showCroppedImage(croppedAreaPixels)}>
+          <DialogClose color="minimal">{t("cancel")}</DialogClose>
+          <DialogClose
+            data-testid="upload-avatar"
+            color="primary"
+            onClick={() => showCroppedImage(croppedAreaPixels)}>
             {t("save")}
           </DialogClose>
-          <DialogClose color="minimal">{t("cancel")}</DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
