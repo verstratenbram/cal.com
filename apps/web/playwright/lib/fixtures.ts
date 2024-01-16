@@ -1,15 +1,13 @@
 import type { Page } from "@playwright/test";
 import { test as base } from "@playwright/test";
-import type { API } from "mailhog";
-import mailhog from "mailhog";
 
-import { IS_MAILHOG_ENABLED } from "@calcom/lib/constants";
-import logger from "@calcom/lib/logger";
 import prisma from "@calcom/prisma";
 
 import type { ExpectedUrlDetails } from "../../../../playwright.config";
 import { createBookingsFixture } from "../fixtures/bookings";
+import { createEmailsFixture } from "../fixtures/emails";
 import { createEmbedsFixture } from "../fixtures/embeds";
+import { createEventTypeFixture } from "../fixtures/eventTypes";
 import { createFeatureFixture } from "../fixtures/features";
 import { createOrgsFixture } from "../fixtures/orgs";
 import { createPaymentsFixture } from "../fixtures/payments";
@@ -27,10 +25,11 @@ export interface Fixtures {
   embeds: ReturnType<typeof createEmbedsFixture>;
   servers: ReturnType<typeof createServersFixture>;
   prisma: typeof prisma;
-  emails?: API;
+  emails: ReturnType<typeof createEmailsFixture>;
   routingForms: ReturnType<typeof createRoutingFormsFixture>;
   bookingPage: ReturnType<typeof createBookingPageFixture>;
   features: ReturnType<typeof createFeatureFixture>;
+  eventTypePage: ReturnType<typeof createEventTypeFixture>;
 }
 
 declare global {
@@ -84,14 +83,7 @@ export const test = base.extend<Fixtures>({
     await use(createRoutingFormsFixture());
   },
   emails: async ({}, use) => {
-    if (IS_MAILHOG_ENABLED) {
-      const mailhogAPI = mailhog();
-      await use(mailhogAPI);
-    } else {
-      //FIXME: Ideally we should error out here. If someone is running tests with mailhog disabled, they should be aware of it
-      logger.warn("Mailhog is not enabled - Skipping Emails verification");
-      await use(undefined);
-    }
+    await use(createEmailsFixture());
   },
   bookingPage: async ({ page }, use) => {
     const bookingPage = createBookingPageFixture(page);
@@ -101,5 +93,9 @@ export const test = base.extend<Fixtures>({
     const features = createFeatureFixture(page);
     await features.init();
     await use(features);
+  },
+  eventTypePage: async ({ page }, use) => {
+    const eventTypePage = createEventTypeFixture(page);
+    await use(eventTypePage);
   },
 });
