@@ -5,3 +5,7 @@ staging.tar.gz
 production/
 production.tar.gz
 .env-production
+
+local/
+production.tar.gz
+.env-local
