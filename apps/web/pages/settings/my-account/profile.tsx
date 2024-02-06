@@ -84,10 +84,10 @@ const ProfileView = () => {
   const { t } = useLocale();
   const utils = trpc.useContext();
   const { update } = useSession();
-  const { data: user, isLoading } = trpc.viewer.me.useQuery();
+  const { data: user, isPending } = trpc.viewer.me.useQuery();
 
   const { data: avatarData } = trpc.viewer.avatar.useQuery(undefined, {
-    enabled: !isLoading && !user?.avatarUrl,
+    enabled: !isPending && !user?.avatarUrl,
   });
 
   const updateProfileMutation = trpc.viewer.updateProfile.useMutation({
@@ -222,7 +222,7 @@ const ProfileView = () => {
     [ErrorCode.ThirdPartyIdentityProviderEnabled]: t("account_created_with_identity_provider"),
   };
 
-  if (isLoading || !user) {
+  if (isPending || !user) {
     return (
       <SkeletonLoader title={t("profile")} description={t("profile_description", { appName: APP_NAME })} />
     );
@@ -230,7 +230,10 @@ const ProfileView = () => {
 
   const defaultValues = {
     username: user.username || "",
-    avatar: getUserAvatarUrl(user),
+    avatar: getUserAvatarUrl({
+      ...user,
+      profile: user.profile,
+    }),
     name: user.name || "",
     email: user.email || "",
     bio: user.bio || "",
@@ -246,7 +249,7 @@ const ProfileView = () => {
       <ProfileForm
         key={JSON.stringify(defaultValues)}
         defaultValues={defaultValues}
-        isLoading={updateProfileMutation.isLoading}
+        isPending={updateProfileMutation.isPending}
         isFallbackImg={!user.avatarUrl && !avatarData?.avatar}
         user={user}
         userOrganization={user.organization}
@@ -354,7 +357,7 @@ const ProfileView = () => {
           <DialogFooter showDivider>
             <Button
               color="primary"
-              loading={confirmPasswordMutation.isLoading}
+              loading={confirmPasswordMutation.isPending}
               onClick={(e) => onConfirmPassword(e)}>
               {t("confirm")}
             </Button>
@@ -375,7 +378,7 @@ const ProfileView = () => {
           <DialogFooter>
             <Button
               color="primary"
-              loading={updateProfileMutation.isLoading}
+              loading={updateProfileMutation.isPending}
               onClick={(e) => onConfirmAuthEmailChange(e)}>
               {t("confirm")}
             </Button>
@@ -391,7 +394,7 @@ const ProfileForm = ({
   defaultValues,
   onSubmit,
   extraField,
-  isLoading = false,
+  isPending = false,
   isFallbackImg,
   user,
   userOrganization,
@@ -399,7 +402,7 @@ const ProfileForm = ({
   defaultValues: FormValues;
   onSubmit: (values: FormValues) => void;
   extraField?: React.ReactNode;
-  isLoading: boolean;
+  isPending: boolean;
   isFallbackImg: boolean;
   user: RouterOutputs["viewer"]["me"];
   userOrganization: RouterOutputs["viewer"]["me"]["organization"];
@@ -443,20 +446,14 @@ const ProfileForm = ({
               const organization =
                 userOrganization && userOrganization.id
                   ? {
-                      ...(userOrganization as Ensure<typeof user.organization, "id">),
+                      ...(userOrganization as Ensure<NonNullable<typeof user.organization>, "id">),
                       slug: userOrganization.slug || null,
                       requestedSlug: userOrganization.metadata?.requestedSlug || null,
                     }
                   : null;
               return (
                 <>
-                  <UserAvatar
-                    data-testid="profile-upload-avatar"
-                    previewSrc={value}
-                    size="lg"
-                    user={user}
-                    organization={organization}
-                  />
+                  <UserAvatar data-testid="profile-upload-avatar" previewSrc={value} size="lg" user={user} />
                   <div className="ms-4">
                     <h2 className="mb-2 text-sm font-medium">{t("profile_picture")}</h2>
                     <div className="flex gap-2">
@@ -509,7 +506,7 @@ const ProfileForm = ({
         </div>
       </div>
       <SectionBottomActions align="end">
-        <Button loading={isLoading} disabled={isDisabled} color="primary" type="submit">
+        <Button loading={isPending} disabled={isDisabled} color="primary" type="submit">
           {t("update")}
         </Button>
       </SectionBottomActions>
