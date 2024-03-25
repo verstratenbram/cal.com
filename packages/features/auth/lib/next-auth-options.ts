@@ -42,12 +42,12 @@ const ORGANIZATIONS_AUTOLINK =
 
 const usernameSlug = (username: string) => `${slugify(username)}-${randomString(6).toLowerCase()}`;
 
-const loginWithTotp = async (user: { email: string }) =>
-  `/auth/login?totp=${await (await import("./signJwt")).default({ email: user.email })}`;
+const loginWithTotp = async (email: string) =>
+  `/auth/login?totp=${await (await import("./signJwt")).default({ email })}`;
 
 type UserTeams = {
   teams: (Membership & {
-    team: Team;
+    team: Pick<Team, "metadata">;
   })[];
 };
 
@@ -106,7 +106,9 @@ const providers: Provider[] = [
         throw new Error(ErrorCode.InternalServerError);
       }
 
-      const user = await UserRepository.findByEmailAndIncludeProfiles({ email: credentials.email });
+      const user = await UserRepository.findByEmailAndIncludeProfilesAndPassword({
+        email: credentials.email,
+      });
       // Don't leak information about it being username or password that is invalid
       if (!user) {
         throw new Error(ErrorCode.IncorrectEmailPassword);
@@ -124,18 +126,18 @@ const providers: Provider[] = [
       if (user.identityProvider !== IdentityProvider.CAL && !credentials.totpCode) {
         throw new Error(ErrorCode.ThirdPartyIdentityProviderEnabled);
       }
-      if (!user.password && user.identityProvider == IdentityProvider.CAL) {
+      if (!user.password?.hash && user.identityProvider == IdentityProvider.CAL) {
         throw new Error(ErrorCode.IncorrectEmailPassword);
       }
-      if (!user.password && user.identityProvider !== IdentityProvider.CAL && !credentials.totpCode) {
+      if (!user.password?.hash && user.identityProvider !== IdentityProvider.CAL && !credentials.totpCode) {
         throw new Error(ErrorCode.IncorrectEmailPassword);
       }
 
-      if (user.password && !credentials.totpCode) {
-        if (!user.password) {
+      if (user.password?.hash && !credentials.totpCode) {
+        if (!user.password?.hash) {
           throw new Error(ErrorCode.IncorrectEmailPassword);
         }
-        const isCorrectPassword = await verifyPassword(credentials.password, user.password);
+        const isCorrectPassword = await verifyPassword(credentials.password, user.password.hash);
         if (!isCorrectPassword) {
           throw new Error(ErrorCode.IncorrectEmailPassword);
         }
@@ -273,7 +275,9 @@ if (isSAMLLoginEnabled) {
       email?: string;
       locale?: string;
     }) => {
-      const user = await UserRepository.findByEmailAndIncludeProfiles({ email: profile.email || "" });
+      const user = await UserRepository.findByEmailAndIncludeProfilesAndPassword({
+        email: profile.email || "",
+      });
       if (!user) {
         throw new Error(ErrorCode.UserNotFound);
       }
@@ -339,7 +343,7 @@ if (isSAMLLoginEnabled) {
         }
 
         const { id, firstName, lastName, email } = userInfo;
-        const user = await UserRepository.findByEmailAndIncludeProfiles({ email });
+        const user = await UserRepository.findByEmailAndIncludeProfilesAndPassword({ email });
         if (!user) {
           throw new Error(ErrorCode.UserNotFound);
         }
@@ -713,7 +717,7 @@ export const AUTH_OPTIONS: AuthOptions = {
               }
             }
             if (existingUser.twoFactorEnabled && existingUser.identityProvider === idP) {
-              return loginWithTotp(existingUser);
+              return loginWithTotp(existingUser.email);
             } else {
               return true;
             }
@@ -729,7 +733,7 @@ export const AUTH_OPTIONS: AuthOptions = {
           if (!userWithNewEmail) {
             await prisma.user.update({ where: { id: existingUser.id }, data: { email: user.email } });
             if (existingUser.twoFactorEnabled) {
-              return loginWithTotp(existingUser);
+              return loginWithTotp(existingUser.email);
             } else {
               return true;
             }
@@ -748,6 +752,9 @@ export const AUTH_OPTIONS: AuthOptions = {
               mode: "insensitive",
             },
           },
+          include: {
+            password: true,
+          },
         });
 
         if (existingUserWithEmail) {
@@ -758,7 +765,7 @@ export const AUTH_OPTIONS: AuthOptions = {
             existingUserWithEmail.identityProvider !== IdentityProvider.CAL
           ) {
             if (existingUserWithEmail.twoFactorEnabled) {
-              return loginWithTotp(existingUserWithEmail);
+              return loginWithTotp(existingUserWithEmail.email);
             } else {
               return true;
             }
@@ -766,7 +773,7 @@ export const AUTH_OPTIONS: AuthOptions = {
 
           // check if user was invited
           if (
-            !existingUserWithEmail.password &&
+            !existingUserWithEmail.password?.hash &&
             !existingUserWithEmail.emailVerified &&
             !existingUserWithEmail.username
           ) {
@@ -788,7 +795,7 @@ export const AUTH_OPTIONS: AuthOptions = {
             });
 
             if (existingUserWithEmail.twoFactorEnabled) {
-              return loginWithTotp(existingUserWithEmail);
+              return loginWithTotp(existingUserWithEmail.email);
             } else {
               return true;
             }
@@ -803,14 +810,16 @@ export const AUTH_OPTIONS: AuthOptions = {
               where: { email: existingUserWithEmail.email },
               // also update email to the IdP email
               data: {
-                password: null,
+                password: {
+                  delete: true,
+                },
                 email: user.email,
                 identityProvider: idP,
                 identityProviderId: account.providerAccountId,
               },
             });
             if (existingUserWithEmail.twoFactorEnabled) {
-              return loginWithTotp(existingUserWithEmail);
+              return loginWithTotp(existingUserWithEmail.email);
             } else {
               return true;
             }
@@ -849,7 +858,7 @@ export const AUTH_OPTIONS: AuthOptions = {
         await calcomAdapter.linkAccount(linkAccountNewUserData);
 
         if (account.twoFactorEnabled) {
-          return loginWithTotp(newUser);
+          return loginWithTotp(newUser.email);
         } else {
           return true;
         }
