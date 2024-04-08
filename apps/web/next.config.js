@@ -436,6 +436,16 @@ const nextConfig = {
   async redirects() {
     const redirects = [
       {
+        source: "/privacy",
+        destination: "https://mijnafspraken.online/privacy/",
+        permanent: false,
+      },
+      {
+        source: "/terms",
+        destination: "https://mijnafspraken.online/terms/",
+        permanent: false,
+      },
+      {
         source: "/api/app-store/:path*",
         destination: "/app-store/:path*",
         permanent: true,
