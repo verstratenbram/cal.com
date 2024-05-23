@@ -22,7 +22,7 @@
         ]
       }
     },
-    "/api/v2/oauth-clients/{clientId}/users": {
+    "/v2/oauth-clients/{clientId}/users": {
       "get": {
         "operationId": "OAuthClientUsersController_getManagedUsers",
         "parameters": [
@@ -90,7 +90,7 @@
         ]
       }
     },
-    "/api/v2/oauth-clients/{clientId}/users/{userId}": {
+    "/v2/oauth-clients/{clientId}/users/{userId}": {
       "get": {
         "operationId": "OAuthClientUsersController_getUserById",
         "parameters": [
@@ -210,7 +210,7 @@
         ]
       }
     },
-    "/api/v2/oauth-clients/{clientId}/users/{userId}/force-refresh": {
+    "/v2/oauth-clients/{clientId}/users/{userId}/force-refresh": {
       "post": {
         "operationId": "OAuthClientUsersController_forceRefresh",
         "parameters": [
@@ -248,7 +248,7 @@
         ]
       }
     },
-    "/api/v2/oauth-clients": {
+    "/v2/oauth-clients": {
       "post": {
         "operationId": "OAuthClientsController_createOAuthClient",
         "summary": "",
@@ -302,7 +302,7 @@
         ]
       }
     },
-    "/api/v2/oauth-clients/{clientId}": {
+    "/v2/oauth-clients/{clientId}": {
       "get": {
         "operationId": "OAuthClientsController_getOAuthClientById",
         "summary": "",
@@ -404,7 +404,39 @@
         ]
       }
     },
-    "/api/v2/oauth/{clientId}/authorize": {
+    "/v2/oauth-clients/{clientId}/managed-users": {
+      "get": {
+        "operationId": "OAuthClientsController_getOAuthClientManagedUsersById",
+        "summary": "",
+        "description": "⚠️ First, this endpoint requires `Cookie: next-auth.session-token=eyJhbGciOiJ` header. Log into Cal web app using owner of organization that was created after visiting `/settings/organizations/new`, refresh swagger docs, and the cookie will be added to requests automatically to pass the NextAuthGuard.\nSecond, make sure that the logged in user has organizationId set to pass the OrganizationRolesGuard guard.",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetManagedUsersOutput"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OAuth - development only"
+        ]
+      }
+    },
+    "/v2/oauth/{clientId}/authorize": {
       "post": {
         "operationId": "OAuthFlowController_authorize",
         "summary": "Authorize an OAuth client",
@@ -442,7 +474,7 @@
         ]
       }
     },
-    "/api/v2/oauth/{clientId}/exchange": {
+    "/v2/oauth/{clientId}/exchange": {
       "post": {
         "operationId": "OAuthFlowController_exchange",
         "summary": "Exchange authorization code for access tokens",
@@ -495,7 +527,7 @@
         ]
       }
     },
-    "/api/v2/oauth/{clientId}/refresh": {
+    "/v2/oauth/{clientId}/refresh": {
       "post": {
         "operationId": "OAuthFlowController_refreshAccessToken",
         "parameters": [
@@ -543,7 +575,7 @@
         ]
       }
     },
-    "/api/v2/event-types": {
+    "/v2/event-types": {
       "post": {
         "operationId": "EventTypesController_createEventType",
         "parameters": [],
@@ -593,7 +625,7 @@
         ]
       }
     },
-    "/api/v2/event-types/{eventTypeId}": {
+    "/v2/event-types/{eventTypeId}": {
       "get": {
         "operationId": "EventTypesController_getEventType",
         "parameters": [
@@ -689,7 +721,7 @@
         ]
       }
     },
-    "/api/v2/event-types/{username}/{eventSlug}/public": {
+    "/v2/event-types/{username}/{eventSlug}/public": {
       "get": {
         "operationId": "EventTypesController_getPublicEventType",
         "parameters": [
@@ -722,6 +754,7 @@
             "required": false,
             "in": "query",
             "schema": {
+              "nullable": true,
               "type": "string"
             }
           }
@@ -743,7 +776,7 @@
         ]
       }
     },
-    "/api/v2/event-types/{username}/public": {
+    "/v2/event-types/{username}/public": {
       "get": {
         "operationId": "EventTypesController_getPublicEventTypes",
         "parameters": [
@@ -773,156 +806,7 @@
         ]
       }
     },
-    "/api/v2/ee/gcal/oauth/auth-url": {
-      "get": {
-        "operationId": "GcalController_redirect",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GcalAuthUrlOutput"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Google Calendar"
-        ]
-      }
-    },
-    "/api/v2/ee/gcal/oauth/save": {
-      "get": {
-        "operationId": "GcalController_save",
-        "parameters": [
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GcalSaveRedirectOutput"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Google Calendar"
-        ]
-      }
-    },
-    "/api/v2/ee/gcal/check": {
-      "get": {
-        "operationId": "GcalController_check",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GcalCheckOutput"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Google Calendar"
-        ]
-      }
-    },
-    "/api/v2/ee/provider/{clientId}": {
-      "get": {
-        "operationId": "CalProviderController_verifyClientId",
-        "parameters": [
-          {
-            "name": "clientId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProviderVerifyClientOutput"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Cal provider"
-        ]
-      }
-    },
-    "/api/v2/ee/provider/{clientId}/access-token": {
-      "get": {
-        "operationId": "CalProviderController_verifyAccessToken",
-        "parameters": [
-          {
-            "name": "clientId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProviderVerifyAccessTokenOutput"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Cal provider"
-        ]
-      }
-    },
-    "/api/v2/schedules": {
+    "/v2/schedules": {
       "post": {
         "operationId": "SchedulesController_createSchedule",
         "parameters": [],
@@ -972,7 +856,7 @@
         ]
       }
     },
-    "/api/v2/schedules/default": {
+    "/v2/schedules/default": {
       "get": {
         "operationId": "SchedulesController_getDefaultSchedule",
         "parameters": [],
@@ -993,7 +877,7 @@
         ]
       }
     },
-    "/api/v2/schedules/{scheduleId}": {
+    "/v2/schedules/{scheduleId}": {
       "get": {
         "operationId": "SchedulesController_getSchedule",
         "parameters": [
@@ -1089,7 +973,156 @@
         ]
       }
     },
-    "/api/v2/ee/me": {
+    "/v2/gcal/oauth/auth-url": {
+      "get": {
+        "operationId": "GcalController_redirect",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GcalAuthUrlOutput"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Google Calendar"
+        ]
+      }
+    },
+    "/v2/gcal/oauth/save": {
+      "get": {
+        "operationId": "GcalController_save",
+        "parameters": [
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GcalSaveRedirectOutput"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Google Calendar"
+        ]
+      }
+    },
+    "/v2/gcal/check": {
+      "get": {
+        "operationId": "GcalController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GcalCheckOutput"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Google Calendar"
+        ]
+      }
+    },
+    "/v2/provider/{clientId}": {
+      "get": {
+        "operationId": "CalProviderController_verifyClientId",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderVerifyClientOutput"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cal provider"
+        ]
+      }
+    },
+    "/v2/provider/{clientId}/access-token": {
+      "get": {
+        "operationId": "CalProviderController_verifyAccessToken",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderVerifyAccessTokenOutput"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Cal provider"
+        ]
+      }
+    },
+    "/v2/me": {
       "get": {
         "operationId": "MeController_getMe",
         "parameters": [],
@@ -1139,7 +1172,7 @@
         ]
       }
     },
-    "/api/v2/ee/calendars/busy-times": {
+    "/v2/calendars/busy-times": {
       "get": {
         "operationId": "CalendarsController_getBusyTimes",
         "parameters": [],
@@ -1160,7 +1193,7 @@
         ]
       }
     },
-    "/api/v2/ee/calendars": {
+    "/v2/calendars": {
       "get": {
         "operationId": "CalendarsController_getCalendars",
         "parameters": [],
@@ -1181,7 +1214,7 @@
         ]
       }
     },
-    "/api/v2/ee/bookings": {
+    "/v2/bookings": {
       "get": {
         "operationId": "BookingsController_getBookings",
         "parameters": [
@@ -1235,7 +1268,16 @@
       },
       "post": {
         "operationId": "BookingsController_createBooking",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-cal-client-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1263,7 +1305,7 @@
         ]
       }
     },
-    "/api/v2/ee/bookings/{bookingUid}": {
+    "/v2/bookings/{bookingUid}": {
       "get": {
         "operationId": "BookingsController_getBooking",
         "parameters": [
@@ -1293,7 +1335,7 @@
         ]
       }
     },
-    "/api/v2/ee/bookings/{bookingUid}/reschedule": {
+    "/v2/bookings/{bookingUid}/reschedule": {
       "get": {
         "operationId": "BookingsController_getBookingForReschedule",
         "parameters": [
@@ -1323,7 +1365,7 @@
         ]
       }
     },
-    "/api/v2/ee/bookings/{bookingId}/cancel": {
+    "/v2/bookings/{bookingId}/cancel": {
       "post": {
         "operationId": "BookingsController_cancelBooking",
         "parameters": [
@@ -1331,6 +1373,14 @@
             "name": "bookingId",
             "required": true,
             "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-cal-client-id",
+            "required": true,
+            "in": "header",
             "schema": {
               "type": "string"
             }
@@ -1363,10 +1413,19 @@
         ]
       }
     },
-    "/api/v2/ee/bookings/reccuring": {
+    "/v2/bookings/recurring": {
       "post": {
-        "operationId": "BookingsController_createReccuringBooking",
-        "parameters": [],
+        "operationId": "BookingsController_createRecurringBooking",
+        "parameters": [
+          {
+            "name": "x-cal-client-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1397,10 +1456,19 @@
         ]
       }
     },
-    "/api/v2/ee/bookings/instant": {
+    "/v2/bookings/instant": {
       "post": {
         "operationId": "BookingsController_createInstantBooking",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-cal-client-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1428,7 +1496,7 @@
         ]
       }
     },
-    "/api/v2/slots/reserve": {
+    "/v2/slots/reserve": {
       "post": {
         "operationId": "SlotsController_reserveSlot",
         "parameters": [],
@@ -1459,7 +1527,7 @@
         ]
       }
     },
-    "/api/v2/slots/selected-slot": {
+    "/v2/slots/selected-slot": {
       "delete": {
         "operationId": "SlotsController_deleteSelectedSlot",
         "parameters": [],
@@ -1480,7 +1548,7 @@
         ]
       }
     },
-    "/api/v2/slots/available": {
+    "/v2/slots/available": {
       "get": {
         "operationId": "SlotsController_getAvailableSlots",
         "parameters": [],
@@ -1501,7 +1569,7 @@
         ]
       }
     },
-    "/api/v2/timezones": {
+    "/v2/timezones": {
       "get": {
         "operationId": "TimezonesController_getTimeZones",
         "parameters": [],
@@ -1615,11 +1683,25 @@
           },
           "timeFormat": {
             "type": "number",
-            "example": 12
+            "example": 12,
+            "enum": [
+              12,
+              24
+            ],
+            "description": "Must be 12 or 24"
           },
           "weekStart": {
             "type": "string",
-            "example": "Sunday"
+            "example": "Monday",
+            "enum": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ]
           },
           "timeZone": {
             "type": "string",
@@ -1695,20 +1777,36 @@
       "UpdateManagedUserInput": {
         "type": "object",
         "properties": {
+          "timeFormat": {
+            "type": "number",
+            "example": 12,
+            "enum": [
+              12,
+              24
+            ],
+            "description": "Must be 12 or 24"
+          },
+          "weekStart": {
+            "type": "string",
+            "example": "Monday",
+            "enum": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ]
+          },
           "email": {
             "type": "string"
           },
           "name": {
             "type": "string"
           },
-          "timeFormat": {
-            "type": "number"
-          },
           "defaultScheduleId": {
             "type": "number"
-          },
-          "weekStart": {
-            "type": "string"
           },
           "timeZone": {
             "type": "string"
@@ -2001,6 +2099,9 @@
             "items": {
               "$ref": "#/components/schemas/EventTypeLocation"
             }
+          },
+          "disableGuests": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -2683,6 +2784,9 @@
             "items": {
               "$ref": "#/components/schemas/EventTypeLocation"
             }
+          },
+          "disableGuests": {
+            "type": "boolean"
           }
         }
       },
@@ -2751,96 +2855,6 @@
         "required": [
           "status",
           "data"
-        ]
-      },
-      "AuthUrlData": {
-        "type": "object",
-        "properties": {
-          "authUrl": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "authUrl"
-        ]
-      },
-      "GcalAuthUrlOutput": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success",
-            "enum": [
-              "success",
-              "error"
-            ]
-          },
-          "data": {
-            "$ref": "#/components/schemas/AuthUrlData"
-          }
-        },
-        "required": [
-          "status",
-          "data"
-        ]
-      },
-      "GcalSaveRedirectOutput": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "url"
-        ]
-      },
-      "GcalCheckOutput": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success",
-            "enum": [
-              "success",
-              "error"
-            ]
-          }
-        },
-        "required": [
-          "status"
-        ]
-      },
-      "ProviderVerifyClientOutput": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success",
-            "enum": [
-              "success",
-              "error"
-            ]
-          }
-        },
-        "required": [
-          "status"
-        ]
-      },
-      "ProviderVerifyAccessTokenOutput": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success",
-            "enum": [
-              "success",
-              "error"
-            ]
-          }
-        },
-        "required": [
-          "status"
         ]
       },
       "CreateAvailabilityInput": {
@@ -3297,6 +3311,96 @@
         ]
       },
       "DeleteScheduleOutput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success",
+            "enum": [
+              "success",
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "AuthUrlData": {
+        "type": "object",
+        "properties": {
+          "authUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authUrl"
+        ]
+      },
+      "GcalAuthUrlOutput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success",
+            "enum": [
+              "success",
+              "error"
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthUrlData"
+          }
+        },
+        "required": [
+          "status",
+          "data"
+        ]
+      },
+      "GcalSaveRedirectOutput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "GcalCheckOutput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success",
+            "enum": [
+              "success",
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ProviderVerifyClientOutput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success",
+            "enum": [
+              "success",
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ProviderVerifyAccessTokenOutput": {
         "type": "object",
         "properties": {
           "status": {
@@ -4190,6 +4294,12 @@
           },
           "responses": {
             "$ref": "#/components/schemas/Response"
+          },
+          "orgSlug": {
+            "type": "string"
+          },
+          "locationUrl": {
+            "type": "string"
           }
         },
         "required": [

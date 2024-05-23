@@ -26,16 +26,12 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ApiTags as DocsTags } from "@nestjs/swagger";
+import { Prisma } from "@prisma/client";
 import { Request } from "express";
 import { google } from "googleapis";
 import { z } from "zod";
 
-import {
-  APPS_READ,
-  GOOGLE_CALENDAR_ID,
-  GOOGLE_CALENDAR_TYPE,
-  SUCCESS_STATUS,
-} from "@calcom/platform-constants";
+import { APPS_READ, GOOGLE_CALENDAR_TYPE, SUCCESS_STATUS } from "@calcom/platform-constants";
 
 const CALENDAR_SCOPES = [
   "https://www.googleapis.com/auth/calendar.readonly",
@@ -44,7 +40,7 @@ const CALENDAR_SCOPES = [
 
 // Controller for the GCalConnect Atom
 @Controller({
-  path: "ee/gcal",
+  path: "/gcal",
   version: "2",
 })
 @DocsTags("Google Calendar")
@@ -60,7 +56,7 @@ export class GcalController {
     private readonly calendarsService: CalendarsService
   ) {}
 
-  private redirectUri = `${this.config.get("api.url")}/ee/gcal/oauth/save`;
+  private redirectUri = `${this.config.get("api.url")}/gcal/oauth/save`;
 
   @Get("/oauth/auth-url")
   @HttpCode(HttpStatus.OK)
@@ -106,10 +102,11 @@ export class GcalController {
 
     const oAuth2Client = await this.gcalService.getOAuthClient(this.redirectUri);
     const token = await oAuth2Client.getToken(parsedCode);
-    const key = token.res?.data;
+    // Google oAuth Credentials are stored in token.tokens
+    const key = token.tokens;
     const credential = await this.credentialRepository.createAppCredential(
       GOOGLE_CALENDAR_TYPE,
-      key,
+      key as Prisma.InputJsonValue,
       ownerId
     );
 
@@ -129,7 +126,7 @@ export class GcalController {
         primaryCal.id,
         credential.id,
         ownerId,
-        GOOGLE_CALENDAR_ID
+        GOOGLE_CALENDAR_TYPE
       );
     }
 

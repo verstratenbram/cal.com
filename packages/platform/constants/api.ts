@@ -1,14 +1,15 @@
 export const BASE_URL = "http://localhost:5555";
 export const API_VERSION = "v2";
 export const V2_ENDPOINTS = {
-  me: "ee/me",
+  me: "me",
   availability: "schedules",
   eventTypes: "event-types",
-  bookings: "ee/bookings",
+  bookings: "bookings",
 };
 
 export const SUCCESS_STATUS = "success";
 export const ERROR_STATUS = "error";
+export const REDIRECT_STATUS = "redirect";
 // Client Errors (4xx)
 export const BAD_REQUEST = "BAD_REQUEST";
 export const UNAUTHORIZED = "UNAUTHORIZED";
