@@ -3,7 +3,6 @@ import { cloneDeep } from "lodash";
 import type { TFunction } from "next-i18next";
 
 import { getRichDescription } from "@calcom/lib/CalEventParser";
-import { APP_NAME } from "@calcom/lib/constants";
 import { TimeFormat } from "@calcom/lib/timeFormat";
 import type { CalendarEvent, Person } from "@calcom/types/Calendar";
 

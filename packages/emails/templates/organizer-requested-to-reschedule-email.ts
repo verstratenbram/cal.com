@@ -3,7 +3,6 @@ import { createEvent } from "ics";
 
 import dayjs from "@calcom/dayjs";
 import { getRichDescription } from "@calcom/lib/CalEventParser";
-import { APP_NAME } from "@calcom/lib/constants";
 import type { CalendarEvent } from "@calcom/types/Calendar";
 
 import { renderEmail } from "..";

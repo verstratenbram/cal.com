@@ -1,5 +1,3 @@
-import { APP_NAME } from "@calcom/lib/constants";
-
 import { renderEmail } from "../";
 import OrganizerScheduledEmail from "./organizer-scheduled-email";
 
