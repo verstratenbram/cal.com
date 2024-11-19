@@ -1,5 +1,5 @@
 import { renderEmail } from "../";
-import generateIcsString from "../lib/generateIcsString";
+import generateIcsFile, { GenerateIcsRole } from "../lib/generateIcsFile";
 import OrganizerScheduledEmail from "./organizer-scheduled-email";
 
 export default class OrganizerLocationChangeEmail extends OrganizerScheduledEmail {
@@ -7,17 +7,11 @@ export default class OrganizerLocationChangeEmail extends OrganizerScheduledEmai
     const toAddresses = [this.teamMember?.email || this.calEvent.organizer.email];
 
     return {
-      icalEvent: {
-        filename: "event.ics",
-        content: generateIcsString({
-          event: this.calEvent,
-          title: this.t("event_location_changed"),
-          subtitle: this.t("emailed_you_and_any_other_attendees"),
-          role: "organizer",
-          status: "CONFIRMED",
-        }),
-        method: "REQUEST",
-      },
+      icalEvent: generateIcsFile({
+        calEvent: this.calEvent,
+        role: GenerateIcsRole.ORGANIZER,
+        status: "CONFIRMED",
+      }),
       from: `${this.calEvent.organizer.name} <${this.getMailerOptions().from}>`,
       to: toAddresses.join(","),
       replyTo: [this.calEvent.organizer.email, ...this.calEvent.attendees.map(({ email }) => email)],

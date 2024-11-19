@@ -138,6 +138,7 @@ const BookerComponent = ({
   const scrolledToTimeslotsOnce = useRef(false);
   const scrollToTimeSlots = () => {
     if (isMobile && !isEmbed && !scrolledToTimeslotsOnce.current) {
+      // eslint-disable-next-line @calcom/eslint/no-scroll-into-view-embed -- Conditional within !isEmbed condition
       timeslotsRef.current?.scrollIntoView({ behavior: "smooth" });
       scrolledToTimeslotsOnce.current = true;
     }
@@ -176,7 +177,7 @@ const BookerComponent = ({
         isVerificationCodeSending={isVerificationCodeSending}
         isPlatform={isPlatform}>
         <>
-          {verifyCode ? (
+          {verifyCode && formEmail ? (
             <VerifyCodeDialog
               isOpenDialog={isEmailVerificationModalVisible}
               setIsOpenDialog={setEmailVerificationModalVisible}
@@ -200,6 +201,7 @@ const BookerComponent = ({
               onGoBack={() => {
                 onGoBackInstantMeeting();
               }}
+              orgName={event.data?.entity?.name}
             />
           )}
         </>
@@ -279,7 +281,7 @@ const BookerComponent = ({
             (layout === BookerLayouts.MONTH_VIEW || isEmbed) && "border-subtle rounded-md",
             !isEmbed && "sm:transition-[width] sm:duration-300",
             isEmbed && layout === BookerLayouts.MONTH_VIEW && "border-booker sm:border-booker-width",
-            !isEmbed && layout === BookerLayouts.MONTH_VIEW && `border-subtle`,
+            !isEmbed && layout === BookerLayouts.MONTH_VIEW && `border-subtle border`,
             `${customClassNames?.bookerContainer}`
           )}>
           <AnimatePresence>
@@ -291,7 +293,9 @@ const BookerComponent = ({
                   (layout === BookerLayouts.COLUMN_VIEW || layout === BookerLayouts.WEEK_VIEW) &&
                     "bg-default dark:bg-muted sticky top-0 z-10"
                 )}>
-                {!isPlatform ? (
+                {isPlatform && layout === BookerLayouts.MONTH_VIEW ? (
+                  <></>
+                ) : (
                   <Header
                     isMyLink={Boolean(username === sessionUsername)}
                     eventSlug={eventSlug}
@@ -321,8 +325,6 @@ const BookerComponent = ({
                       )
                     }
                   />
-                ) : (
-                  <></>
                 )}
               </BookerSection>
             )}
@@ -439,7 +441,7 @@ const BookerComponent = ({
           }}
         />
 
-        {bookerState !== "booking" && event.data?.isInstantEvent && (
+        {bookerState !== "booking" && event.data?.showInstantEventConnectNowModal && (
           <div
             className={classNames(
               "animate-fade-in-up  z-40 my-2 opacity-0",
@@ -458,7 +460,7 @@ const BookerComponent = ({
           <m.span
             key="logo"
             className={classNames(
-              "-z-10 mb-6 mt-auto pt-6 [&_img]:h-[15px]",
+              "mb-6 mt-auto pt-6 [&_img]:h-[15px]",
               hasDarkBackground ? "dark" : "",
               layout === BookerLayouts.MONTH_VIEW ? "block" : "hidden"
             )}>
